@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Post;
 use Illuminate\Http\Request;
 
-class PostCoutroller extends Controller
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,17 +17,18 @@ class PostCoutroller extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::all();
+        return view('posts.index', ['posts' => $posts]);
     }
 
-    /**
+/**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -35,7 +39,15 @@ class PostCoutroller extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $id = Auth::id();
+        $post = new Post();
+
+        $post->body = $request->body;
+        $post->user_id = $id;
+
+        $post->save();
+
+       return redirect()->to('/posts');
     }
 
     /**
@@ -46,7 +58,11 @@ class PostCoutroller extends Controller
      */
     public function show(Post $post)
     {
-        //
+        $usr_id = $post->user_id;
+        $user = DB::table('users')->where('id', $usr_id)->first();
+        
+
+        return view('posts.detail',['post' => $post,'user' => $user]);
     }
 
     /**
@@ -55,10 +71,13 @@ class PostCoutroller extends Controller
      * @param  \App\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function edit(Post $post)
+    public function edit($id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        return view('posts.edit',['post' => $post,'id' =>$id]);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -67,9 +86,17 @@ class PostCoutroller extends Controller
      * @param  \App\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request)
     {
-        //
+
+        $id = $request->post_id;
+
+        $post = Post::findOrFail($id);
+        $post->body = $request->body;
+
+        $post->save();
+
+        return redirect()->to('/posts');
     }
 
     /**
@@ -78,8 +105,11 @@ class PostCoutroller extends Controller
      * @param  \App\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
-        //
+        $post = Post::find($id);
+        $post->delete();
+
+        return redirect()->to('/posts');
     }
 }
