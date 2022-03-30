@@ -1,5 +1,6 @@
 FROM php:7.3.29-apache
 RUN apt-get update \
+  && apt-get install -y nodejs npm \
   && apt-get install -y zlib1g-dev \
   && apt-get install -y zip unzip \
   && apt-get -y install libzip-dev \
